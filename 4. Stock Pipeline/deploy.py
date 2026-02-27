@@ -1269,7 +1269,7 @@ if __name__ == "__main__" :
     # Create a deployment with .serve 
     # cron="00 14 * * *", # minute, hour, day of month, month, day of week
     stock_transform.source(
-        source = "",
+        source = "https://raw.githubusercontent.com/emilychaukang/Data-Science-Projects/refs/heads/main/4.%20Stock%20Pipeline/deploy.py",
         entrypoint = "deploy.py:stock_transform"
     
     ).deploy(
