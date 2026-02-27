@@ -1211,18 +1211,110 @@ save_to_database(target,engine,df,wdf,mdf)
 # 4. month (1 - 12)
 # 5. day of week (0 - 6) (Sunday=0 or 7)
 
+# In[62]:
+
+
+# import time
+# import nest_asyncio
+# nest_asyncio.apply()
+# import asyncio
+# from prefect.schedules import Cron
+
+# @flow(log_prints=True)
+# async def stock_transform():
+#     start_time =time.perf_counter()
+#     # Create an engine
+#     engine = create_database_engine()
+#     # Download stock lists
+#     stock_list = stocklist
+#     market = 'TW'
+    
+#     for i in stock_list: 
+#         try:
+#             [df,wdf,mdf] = data_prep(i,market)
+#             print(f"Data {i} downloaded successfully")
+            
+#             try:
+#                 [df,wdf,mdf] = technical(i,df,wdf,mdf,18,1.2,50,9)
+#                 print(f"Data {i} calculated successfully")
+
+#                 try:
+#                     [df,wdf,mdf] = trading_signal(i,df,wdf,mdf)
+#                     print(f"Data {i} signals added successfully")
+#                     save_to_database(i,engine,df,wdf,mdf)
+#                     print(f"Data {i} table create in database successfully")
+
+#                 except Exception as e :
+#                     print(f"Data {i} signals added failed")
+#                     print(f"Error : {e}")
+
+#             except Exception as e :
+#                 print(f"Data {i} calculated failed")
+#                 print(f"Error : {e}")
+            
+#         except Exception as e :
+#             print(f"Data {i} downloaded failed")
+#             print(f"Error : {e}")
+        
+
+                    
+#     end_time = time.perf_counter()
+#     execution_time = end_time - start_time
+#     print(f"Execution time: {execution_time:.4f} seconds")
+    
+# if __name__ == "__main__" :
+#     # Only for local testing/running
+#     asyncio.run(stock_transform())
+    
+#     # Create a deployment with .serve 
+#     # cron="00 14 * * *", # minute, hour, day of month, month, day of week
+#     stock_transform.from_source(
+#         source = "https://raw.githubusercontent.com/emilychaukang/Data-Science-Projects/refs/heads/main/4.%20Stock%20Pipeline/deploy.py",
+#         entrypoint = "deploy.py:stock_transform"
+    
+#     ).deploy(
+#         name="stock-deployment",
+#         work_pool_name = "my-work-pool",
+#         schedule = Cron(
+#             # "0 14 * * *", # Runs at 14:00 at Taipei,Taiwan time 
+#             # timezone = "Asia/Taipei"
+#             "00 16 * * *", # Runs at EST time
+#             timezone = "America/New_York"
+#         )
+#     )
+
+
 # In[ ]:
+
+
+# # Run it once before deployment 
+# from test import stock_transform # 
+
+# if __name__ == "__main__":
+# # Deployment
+#     stock_transform.from_source(
+#         # current directory
+#         source=".",
+#         entrypoint = "test.py:stock_transform"
+#     ).deploy(
+#         name="stock-deployment",
+#         work_pool_name = "my-work-pool"
+#     )
+
+
+# In[94]:
 
 
 import time
 import nest_asyncio
 nest_asyncio.apply()
 import asyncio
+from prefect import flow
 from prefect.schedules import Cron
 
 @flow(log_prints=True)
 async def stock_transform():
-    start_time =time.perf_counter()
+    start_time = time.perf_counter()
     # Create an engine
     engine = create_database_engine()
     # Download stock lists
@@ -1255,49 +1347,52 @@ async def stock_transform():
         except Exception as e :
             print(f"Data {i} downloaded failed")
             print(f"Error : {e}")
-        
-
                     
     end_time = time.perf_counter()
     execution_time = end_time - start_time
     print(f"Execution time: {execution_time:.4f} seconds")
-    
-if __name__ == "__main__" :
-    # Only for local testing/running
-    asyncio.run(stock_transform())
-    
-    # Create a deployment with .serve 
-    # cron="00 14 * * *", # minute, hour, day of month, month, day of week
-    stock_transform.source(
-        source = "https://raw.githubusercontent.com/emilychaukang/Data-Science-Projects/refs/heads/main/4.%20Stock%20Pipeline/deploy.py",
-        entrypoint = "deploy.py:stock_transform"
-    
+
+# Separate function for deployment
+def create_deployment():
+    """Create a deployment for the stock_transform flow"""
+    return stock_transform.from_source(
+        source="https://raw.githubusercontent.com/emilychaukang/Data-Science-Projects/refs/heads/main/4.%20Stock%20Pipeline/deploy.py",
+        entrypoint="deploy.py:stock_transform"
     ).deploy(
         name="stock-deployment",
-        work_pool_name = "my-work-pool",
-        schedule = Cron(
-            # "0 14 * * *", # Runs at 14:00 at Taipei,Taiwan time 
-            # timezone = "Asia/Taipei"
-            "00 16 * * *", # Runs at EST time
-            timezone = "America/New_York"
+        work_pool_name="my-work-pool",
+        schedule=Cron(
+            "00 16 * * *",  # Runs at 16:00 EST
+            timezone="America/New_York"
         )
     )
+
+if __name__ == "__main__":
+    # For local testing/running
+    asyncio.run(stock_transform())
+    
+    # For deployment (uncomment when you want to deploy)
+    # create_deployment()
 
 
 # In[ ]:
 
 
-# # Run it once before deployment 
-# from test import stock_transform # 
+# import asyncio
+# from prefect.schedules import Cron
+# from your_flow_file import stock_transform  # Import your flow
 
 # if __name__ == "__main__":
-# # Deployment
+#     # Create deployment
 #     stock_transform.from_source(
-#         # current directory
-#         source=".",
-#         entrypoint = "test.py:stock_transform"
+#         source="https://raw.githubusercontent.com/emilychaukang/Data-Science-Projects/refs/heads/main/4.%20Stock%20Pipeline/deploy.py",
+#         entrypoint="deploy.py:stock_transform"
 #     ).deploy(
 #         name="stock-deployment",
-#         work_pool_name = "my-work-pool"
+#         work_pool_name="my-work-pool",
+#         schedule=Cron(
+#             "00 16 * * *",  # Runs at 16:00 EST
+#             timezone="America/New_York"
+#         )
 #     )
 
