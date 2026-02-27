@@ -1,0 +1,4 @@
+# Create the work pool 
+# free plan can only create prefect serverless work pool "prefect:managed"
+
+prefect work-pool create "my-work-pool" --type prefect:managed
