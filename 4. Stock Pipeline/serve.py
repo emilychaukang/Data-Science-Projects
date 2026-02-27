@@ -1273,7 +1273,7 @@ if __name__ == "__main__" :
         schedule = Cron(
             # "0 14 * * *", # Runs at 14:00 at Taipei,Taiwan time 
             # timezone = "Asia/Taipei"
-            "00 16 * * *", # Runs at EST time
+            "00 13 * * *", # Runs at EST time
             timezone = "America/New_York"
         )
     )
